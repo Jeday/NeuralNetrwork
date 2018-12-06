@@ -178,11 +178,11 @@ namespace NeuralNetwork1
             int x2 = rand.Next(start_point.X, 200 - margin);
             int x1 = rand.Next(margin, start_point.X);
 
-            int sx = 1;
-            int sy = 20;
+            double sx = 0.5;
+            double sy = 20;
             for(double t = x1; t < x2; t += 0.1)
             {
-                double x = t + start_point.X;
+                double x = t;
                 double y = sy * Math.Sin(sx * t) + start_point.Y;
                 img[(int)x, (int)y] = true;
             }

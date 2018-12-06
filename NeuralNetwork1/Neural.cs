@@ -54,6 +54,7 @@ namespace NeuralNetwork1
 
 
         private void setup() {
+            // init layers arrays
             Sensors = new Node[SencorCount];
             Outputs = new Node[OutputCount];
             Layers = new Node[2+HiddenLayersCount][];
@@ -65,6 +66,7 @@ namespace NeuralNetwork1
 
             }
 
+            // init sensor nodes
             for (int i = 0; i < SencorCount; i++)
             {
                 Sensors[i] = new Node((int)HiddenLayerMagnifyer * 3);
@@ -72,6 +74,7 @@ namespace NeuralNetwork1
 
             }
 
+            // init all but last hidden layers nodes
             for (int i = 1; i < HiddenLayersCount; i++)
             {
                 for (int j = 0; j < HiddenNeuronsCount; j++)
@@ -80,6 +83,7 @@ namespace NeuralNetwork1
                 }
             }
 
+            // last layer 
             for (int j = 0; j < HiddenNeuronsCount; j++)
             {
                 Layers[HiddenNeuronsCount][j] = new Node(OutputCount);
