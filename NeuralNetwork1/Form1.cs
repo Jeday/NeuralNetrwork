@@ -12,17 +12,33 @@ namespace NeuralNetwork1
 {
     public partial class Form1 : Form
     {
+        public Bitmap DrawArea;
         public Form1()
         {
             InitializeComponent();
+            DrawArea = new Bitmap(pictureBox1.Size.Width, pictureBox1.Size.Height);
+        }
+
+        private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            GenerateImage figure = new GenerateImage(new Point(e.X, e.Y));
+            figure.get_random_figure();
+
+            for(int i = 0; i < 200; ++i)
+                for(int j = 0; j < 200; ++j)
+                {
+                    if (figure.img[i, j])
+                        DrawArea.SetPixel(i, j, Color.Black);
+                }
+            pictureBox1.Invalidate();
         }
     }
 
     public class GenerateImage
     {
         public Point start_point;
-        public int margin = 5;
         public bool[,] img;
+        private int margin = 5;
 
         public GenerateImage(Point start)
         {
@@ -36,6 +52,30 @@ namespace NeuralNetwork1
 
         public GenerateImage() { }
 
+        public void get_random_figure()
+        {
+            create_triangle();
+           /* Random rand = new Random();
+            int type = rand.Next(0, 4);
+
+            switch (type)
+            {
+                case 0:
+                    create_sin();
+                    break;
+                case 1:
+                    create_rectangle();
+                    break;
+                case 2:
+                    create_triangle();
+                    break;
+                default:
+                case 3:
+                    create_circle();
+                    break;
+            }*/
+        }
+
         private void bresenham(int x, int y, int x2, int y2)
         {
             int w = x2 - x;
@@ -46,6 +86,7 @@ namespace NeuralNetwork1
             if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
             int longest = Math.Abs(w);
             int shortest = Math.Abs(h);
+
             if (!(longest > shortest))
             {
                 longest = Math.Abs(h);
@@ -53,10 +94,11 @@ namespace NeuralNetwork1
                 if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
                 dx2 = 0;
             }
+
             int numerator = longest >> 1;
             for (int i = 0; i <= longest; i++)
             {
-                img[x, y] = true; 
+                img[x % 200, y % 200] = true; 
                 numerator += shortest;
                 if (!(numerator < longest))
                 {
@@ -75,11 +117,55 @@ namespace NeuralNetwork1
         public void create_triangle()
         {
             Random rand = new Random();
-            int right_point = rand.Next(start_point.X, start_point.X + 200 - margin);
-            int left_point = rand.Next(right_point - start_point.X + margin, start_point.X);
-            int up_point = rand.Next(-200 + margin, 200 - margin);
+            int right_pointX = rand.Next(start_point.X, start_point.X + 200 - margin);
+            int left_pointX = rand.Next(right_pointX - start_point.X + margin, start_point.X);
+            int up_pointY = rand.Next(start_point.Y, start_point.Y + 200 - margin);
 
-            bresenham(left_point, start_point.Y, right_point, start_point.Y);
-    }
+            bresenham(left_pointX, start_point.Y, right_pointX, start_point.Y);
+            bresenham(left_pointX, start_point.Y, start_point.X, up_pointY);
+            bresenham(start_point.X, up_pointY, right_pointX, start_point.Y);
+        }
+
+        public void create_rectangle()
+        {
+            Random rand = new Random();
+            int right_pointX = rand.Next(start_point.X, start_point.X + 200 - margin);
+            int left_pointX = rand.Next(right_pointX - start_point.X + margin, start_point.X);
+            int up_pointY = rand.Next(start_point.Y, start_point.Y + 200 - margin);
+
+            bresenham(left_pointX, start_point.Y, right_pointX, start_point.Y);
+            bresenham(left_pointX, start_point.Y, left_pointX, up_pointY);
+            bresenham(left_pointX, up_pointY, right_pointX, up_pointY);
+            bresenham(right_pointX, up_pointY, right_pointX, start_point.Y);
+        }
+
+        public void create_circle()
+        {
+            Random rand = new Random();
+            int radius = rand.Next(start_point.X + margin, start_point.X + 100 - margin);
+            
+            for(double t = 0; t < 2 * Math.PI; t += 0.01)
+            {
+                double x = start_point.X + radius * Math.Cos(t);
+                double y = start_point.Y + radius * Math.Sin(t);
+                img[(int)x, (int)y] = true;
+            }
+        }
+
+        public void create_sin()
+        {
+            Random rand = new Random();
+            int x2 = rand.Next(start_point.X, start_point.X + 200 - margin);
+            int x1 = rand.Next(x2 - start_point.X + margin, start_point.X);
+
+            int sx = 1;
+            int sy = 20;
+            for(double t = x1; t < x2; t += 0.1)
+            {
+                double x = t + start_point.X;
+                double y = sy * Math.Sin(sx * t) + start_point.Y;
+                img[(int)x, (int)y] = true;
+            }
+        }
     }
 }
