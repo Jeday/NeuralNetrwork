@@ -39,7 +39,7 @@ namespace NeuralNetwork1
     {
         public Point start_point;
         public bool[,] img;
-        private int margin = 5;
+        private int margin = 10;
 
 
         //Bitmap 
@@ -58,7 +58,7 @@ namespace NeuralNetwork1
 
         public void get_random_figure()
         {
-            create_triangle();
+            create_sin();
            /* Random rand = new Random();
             int type = rand.Next(0, 4);
 
@@ -102,7 +102,7 @@ namespace NeuralNetwork1
             int numerator = longest >> 1;
             for (int i = 0; i <= longest; i++)
             {
-                img[x % 200, y % 200] = true; 
+                img[x, y] = true; 
                 numerator += shortest;
                 if (!(numerator < longest))
                 {
@@ -120,6 +120,9 @@ namespace NeuralNetwork1
 
         public void create_triangle()
         {
+            if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
+                return;
+
             Random rand = new Random();
             int right_pointX = rand.Next(start_point.X,200 - margin);
             int left_pointX = rand.Next(margin, start_point.X);
@@ -132,10 +135,13 @@ namespace NeuralNetwork1
 
         public void create_rectangle()
         {
+            if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
+                return;
+
             Random rand = new Random();
-            int right_pointX = rand.Next(start_point.X, start_point.X + 200 - margin);
-            int left_pointX = rand.Next(right_pointX - start_point.X + margin, start_point.X);
-            int up_pointY = rand.Next(start_point.Y, start_point.Y + 200 - margin);
+            int right_pointX = rand.Next(start_point.X, 200 - margin);
+            int left_pointX = rand.Next(margin, start_point.X);
+            int up_pointY = rand.Next(margin, 200 - margin);
 
             bresenham(left_pointX, start_point.Y, right_pointX, start_point.Y);
             bresenham(left_pointX, start_point.Y, left_pointX, up_pointY);
@@ -145,10 +151,17 @@ namespace NeuralNetwork1
 
         public void create_circle()
         {
+            if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
+                return;
+
             Random rand = new Random();
-            int radius = rand.Next(start_point.X + margin, start_point.X + 100 - margin);
-            
-            for(double t = 0; t < 2 * Math.PI; t += 0.01)
+            int min_r = 5;
+            int distToBorderY = Math.Min(start_point.Y, 200 - start_point.Y);
+            int distToBorderX = Math.Min(start_point.X, 200 - start_point.X);
+
+            int radius = rand.Next(min_r, Math.Min(distToBorderY, distToBorderX));
+
+            for (double t = 0; t < 2 * Math.PI; t += 0.01)
             {
                 double x = start_point.X + radius * Math.Cos(t);
                 double y = start_point.Y + radius * Math.Sin(t);
@@ -158,9 +171,12 @@ namespace NeuralNetwork1
 
         public void create_sin()
         {
+            if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
+                return;
+
             Random rand = new Random();
-            int x2 = rand.Next(start_point.X, start_point.X + 200 - margin);
-            int x1 = rand.Next(x2 - start_point.X + margin, start_point.X);
+            int x2 = rand.Next(start_point.X, 200 - margin);
+            int x1 = rand.Next(margin, start_point.X);
 
             int sx = 1;
             int sy = 20;
