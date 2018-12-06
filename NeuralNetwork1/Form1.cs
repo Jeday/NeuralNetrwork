@@ -40,6 +40,7 @@ namespace NeuralNetwork1
         public Point start_point;
         public bool[,] img;
         private int margin = 10;
+        private Random rand;
 
 
         //Bitmap 
@@ -48,6 +49,7 @@ namespace NeuralNetwork1
         {
             start_point = start;
             img = new bool[200, 200];
+            rand = new Random();
 
             for (int i = 0; i < 200; ++i)
                 for (int j = 0; j < 200; ++j)
@@ -58,8 +60,7 @@ namespace NeuralNetwork1
 
         public void get_random_figure()
         {
-            create_sin();
-           /* Random rand = new Random();
+            Random rand = new Random();
             int type = rand.Next(0, 4);
 
             switch (type)
@@ -77,7 +78,7 @@ namespace NeuralNetwork1
                 case 3:
                     create_circle();
                     break;
-            }*/
+            }
         }
 
         private void bresenham(int x, int y, int x2, int y2)
@@ -123,7 +124,6 @@ namespace NeuralNetwork1
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
-            Random rand = new Random();
             int right_pointX = rand.Next(start_point.X,200 - margin);
             int left_pointX = rand.Next(margin, start_point.X);
             int up_pointY = rand.Next(margin, 200 - margin);
@@ -138,7 +138,6 @@ namespace NeuralNetwork1
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
-            Random rand = new Random();
             int right_pointX = rand.Next(start_point.X, 200 - margin);
             int left_pointX = rand.Next(margin, start_point.X);
             int up_pointY = rand.Next(margin, 200 - margin);
@@ -154,7 +153,6 @@ namespace NeuralNetwork1
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
-            Random rand = new Random();
             int min_r = 5;
             int distToBorderY = Math.Min(start_point.Y, 200 - start_point.Y);
             int distToBorderX = Math.Min(start_point.X, 200 - start_point.X);
@@ -174,7 +172,6 @@ namespace NeuralNetwork1
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
-            Random rand = new Random();
             int x2 = rand.Next(start_point.X, 200 - margin);
             int x1 = rand.Next(margin, start_point.X);
 
