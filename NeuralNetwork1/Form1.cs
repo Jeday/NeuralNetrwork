@@ -58,7 +58,7 @@ namespace NeuralNetwork1
 
         public void get_random_figure()
         {
-            create_triangle();
+            create_sin();
            /* Random rand = new Random();
             int type = rand.Next(0, 4);
 
@@ -155,9 +155,13 @@ namespace NeuralNetwork1
                 return;
 
             Random rand = new Random();
-            int radius = rand.Next(margin, start_point.X);
-            
-            for(double t = 0; t < 2 * Math.PI; t += 0.01)
+            int min_r = 5;
+            int distToBorderY = Math.Min(start_point.Y, 200 - start_point.Y);
+            int distToBorderX = Math.Min(start_point.X, 200 - start_point.X);
+
+            int radius = rand.Next(min_r, Math.Min(distToBorderY, distToBorderX));
+
+            for (double t = 0; t < 2 * Math.PI; t += 0.01)
             {
                 double x = start_point.X + radius * Math.Cos(t);
                 double y = start_point.Y + radius * Math.Sin(t);
