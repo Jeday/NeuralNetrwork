@@ -16,20 +16,21 @@ namespace NeuralNetwork1
         public Form1()
         {
             InitializeComponent();
-            DrawArea = new Bitmap(pictureBox1.Size.Width, pictureBox1.Size.Height);
+           
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
             GenerateImage figure = new GenerateImage(new Point(e.X, e.Y));
             figure.get_random_figure();
-
-            for(int i = 0; i < 200; ++i)
+            DrawArea = new Bitmap(200, 200);
+            for (int i = 0; i < 200; ++i)
                 for(int j = 0; j < 200; ++j)
                 {
                     if (figure.img[i, j])
                         DrawArea.SetPixel(i, j, Color.Black);
                 }
+            pictureBox1.Image = DrawArea;
             pictureBox1.Invalidate();
         }
     }
@@ -39,6 +40,9 @@ namespace NeuralNetwork1
         public Point start_point;
         public bool[,] img;
         private int margin = 5;
+
+
+        //Bitmap 
 
         public GenerateImage(Point start)
         {
