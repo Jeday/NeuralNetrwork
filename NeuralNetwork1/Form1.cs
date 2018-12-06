@@ -121,9 +121,9 @@ namespace NeuralNetwork1
         public void create_triangle()
         {
             Random rand = new Random();
-            int right_pointX = rand.Next(start_point.X, start_point.X + 200 - margin);
-            int left_pointX = rand.Next(right_pointX - start_point.X + margin, start_point.X);
-            int up_pointY = rand.Next(start_point.Y, start_point.Y + 200 - margin);
+            int right_pointX = rand.Next(start_point.X,200 - margin);
+            int left_pointX = rand.Next(margin, start_point.X);
+            int up_pointY = rand.Next(margin, 200 - margin);
 
             bresenham(left_pointX, start_point.Y, right_pointX, start_point.Y);
             bresenham(left_pointX, start_point.Y, start_point.X, up_pointY);
