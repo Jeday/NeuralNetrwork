@@ -202,7 +202,7 @@ namespace NeuralNetwork1
                 Sensors[i].Fire(input[i]);
             }
 
-            for (int i = 1; i < HiddenLayersCount+1; i++)
+            for (int i = 1; i < LAST_HIDDEN_IND; i++)
             {
                 for (int j = 0; j < Layers[i].Length; j++)
                 {
@@ -211,6 +211,29 @@ namespace NeuralNetwork1
             }
 
 
+
+        }
+
+
+        public void Train(double[] input, double[] output, double Min_error)
+        {
+            double error_sum;
+
+            do
+            {
+                Run(input);
+                error_sum = 0;
+                for (int i = 0; i < OutputCount; i++)
+                {
+                    Node n = Outputs[i];
+                    n.error = output[i] - n.output;
+                    error_sum += n.error * n.error;
+                }
+                error_sum = Math.Sqrt(error_sum);
+                CalculateError();
+                ReWeight();
+            }
+            while (error_sum > Min_error);
 
         }
 
