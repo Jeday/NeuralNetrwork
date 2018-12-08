@@ -13,7 +13,10 @@ namespace NeuralNetwork1
         public bool[,] img;
         private int margin = 10;
         private Random rand;
+        public int current_figure;
+        public int figure_count = 4;
 
+        private int center_margin = 50;
 
 
         
@@ -33,6 +36,42 @@ namespace NeuralNetwork1
 
             ClearImage();
         }
+
+
+        public void GenInputOutput(out double[] input,out int type)
+        {
+            input = new double[400];
+            for (int i = 0; i < 400; i++)
+            {
+                input[i] = 0;
+            }
+            type = current_figure;
+            
+            for (int i = 0; i < 200; i++)
+            {
+                for (int j = 0; j < 200; j++)
+                {
+                    if (img[i, j])
+                    {
+                        input[i] += 1;
+                        input[200 + j] += 1;
+                    }
+                }
+            }
+
+            var norm = input.Max();
+            for (int i = 0; i < 400; i++)
+            {
+                input[i] /= norm;
+            }
+
+
+            
+
+
+
+        }
+
 
         public GenerateImage() {
             img = new bool[200, 200];
@@ -104,6 +143,7 @@ namespace NeuralNetwork1
 
         public void create_triangle()
         {
+            current_figure = 0;
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
@@ -118,6 +158,7 @@ namespace NeuralNetwork1
 
         public void create_rectangle()
         {
+            current_figure = 1;
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
@@ -133,6 +174,7 @@ namespace NeuralNetwork1
 
         public void create_circle()
         {
+            current_figure = 2;
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
@@ -152,6 +194,7 @@ namespace NeuralNetwork1
 
         public void create_sin()
         {
+            current_figure = 3;
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
@@ -168,6 +211,31 @@ namespace NeuralNetwork1
             }
         }
 
+
+        public void generate_figure(int type)
+        {
+
+            start_point = new Point(rand.Next(100 - center_margin, 100 + center_margin), rand.Next(100 - center_margin, 100 + center_margin));
+            ClearImage();
+            switch (type)
+            {
+                case 0:
+                    create_triangle();
+                    break;
+                case 1:
+                    create_rectangle();
+                    break;
+                case 2:
+                    create_circle();
+                    break;
+                case 3:
+                    create_sin();
+                    break;
+
+                default:
+                    break;
+            }
+        }
 
         public Bitmap genBitmap()
         {
