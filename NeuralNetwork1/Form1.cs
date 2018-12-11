@@ -20,7 +20,7 @@ namespace NeuralNetwork1
             InitializeComponent();
             generator = new GenerateImage();
             net = new NeuralNetwork(400, generator.figure_count, 3,3);
-            train_triangle();
+           
 
         }
 
@@ -38,31 +38,73 @@ namespace NeuralNetwork1
             pictureBox1.Invalidate();
         }
 
-        private void train_triangle()
+        private void train_network(int hidden_layers, double hmag, int training_size, int epoches,double acceptable_error )
         {
-
-            
-
-            for (int i = 0; i < 5; i++)
+            StatusLabel.Text = "Training in progres...";
+            StatusLabel.ForeColor = Color.Black;
+            net = new NeuralNetwork(400, generator.figure_count, hidden_layers, hmag);
+            List<double[]> data = new List<double[]>(training_size);
+            List<int> res = new List<int>(training_size);
+            var trainingSetGen = new GenerateImage();
+            for (int i = 0; i < training_size; i++)
             {
-                for (int j = 0; j < 2; j++)
-                {
-                    generator.generate_figure(j);
-                    generator.GenInputOutput(out double[] inp, out int type);
-                    net.Train(inp, type);
-                }
-                
-                
-                
+                trainingSetGen.generate_figure(i % trainingSetGen.figure_count);
+                trainingSetGen.GenInputOutput(out double[] inp, out int type);
+                data.Add(inp);
+                res.Add(type);
 
             }
+            bool f = net.TrainOnDataSet(data, res,epoches, acceptable_error);
+            if (f)
+            {
+                StatusLabel.Text = "Network is trained succesfully";
+                StatusLabel.ForeColor = Color.Green;
 
-            
+            }
+            else
+            {
+                StatusLabel.Text = "Training failed";
+                StatusLabel.ForeColor = Color.Red;
 
+            }
+        }
 
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
 
         }
 
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void numericUpDown3_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void numericUpDown4_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            train_network((int)HidLayerCounter.Value, (double)HiddenMagCounter.Value, (int)TrainingSizeCounter.Value, (int)EpochesCounter.Value, (100 - AccuracyCounter.Value) / 100.0);
+            this.Enabled = true;
+        }
     }
 
   }

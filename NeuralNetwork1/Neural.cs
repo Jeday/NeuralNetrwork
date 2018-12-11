@@ -67,8 +67,8 @@ namespace NeuralNetwork1
 
 
 
-        private static double INIT_MAX_WEIGHT = 0.3;
-        private static double INIT_MIN_WEIGHT = -0.3;
+        private static double INIT_MAX_WEIGHT = 0.01;
+        private static double INIT_MIN_WEIGHT = -0.01;
         private int LAST_HIDDEN_IND;
         private int COUNT_LAYERS;
         public int SencorCount;
@@ -315,7 +315,84 @@ namespace NeuralNetwork1
         }
 
 
-       
+        public bool TrainOnDataSet(List<double[]> data, List<int>  outputs,int epochs_count, double acceptable_erorr)
+        {
+            // succes
+            List<bool> succeces = new List<bool>(data.Count);
+            foreach (var d in data)
+                succeces.Add(false);
+            double succeces_percent;
+
+
+            void UpdateSuccesPercent()
+            {
+                succeces_percent = succeces.Count(t => t == true) / (double)succeces.Count();
+            }
+
+
+
+
+            UpdateSuccesPercent();
+            int ind = 0;
+            while(epochs_count > 0 && 1 - succeces_percent > acceptable_erorr)
+            {
+                // last ind marks end of epoch?
+                if (ind == data.Count - 1)
+                    epochs_count--;
+                // get training data
+                double[] input = data[ind];
+                int type = outputs[ind];
+                // run network on it
+                Run(input);
+                // parse output
+                double ValueOfDesired = Outputs[outputs[ind]].output;
+                double MaxGotten = Outputs.Max(n => n.output);
+                // network is right
+                if (ValueOfDesired >= MaxGotten)
+                {
+                    succeces[ind] = true;
+                    UpdateSuccesPercent();
+                    ind++;
+                    if (ind == data.Count)
+                        ind = 0;
+                    continue;
+                }
+                //network is  wrong, backpropogation is needed
+                succeces[ind] = false;
+                double diff = (MaxGotten - ValueOfDesired);
+                double[] error_vector = new double[OutputCount];
+                for (int i = 0; i < OutputCount; i++)
+                {
+                    Node n = Outputs[i];
+                    if (i == type)
+                        error_vector[i] = diff;
+                    else if (n.output > ValueOfDesired)
+                        error_vector[i] = -diff;
+                    else
+                        error_vector[i] = 0;
+                }
+                // error vector is ready, put it into net and
+                for (int i = 0; i < OutputCount; i++)
+                {
+                    Outputs[i].error = error_vector[i];
+                }
+                // bp error and reweight
+                CalculateError();
+                ReWeight();
+                // get next training data
+                ind += 1;
+                if (ind == data.Count)
+                    ind = 0;
+
+            }
+
+            // networks was succesfuly trained on training set
+            if (1 - succeces_percent <= acceptable_erorr)
+                return true;
+            // we runned out of epoches
+            return false;
+
+        }
 
     }
 }
