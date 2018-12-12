@@ -367,7 +367,7 @@ namespace NeuralNetwork1
                     if (i == type)
                         error_vector[i] = diff;
                     else if (n.output > ValueOfDesired)
-                        error_vector[i] = -diff;
+                        error_vector[i] = ValueOfDesired - n.output;
                     else
                         error_vector[i] = 0;
                 }

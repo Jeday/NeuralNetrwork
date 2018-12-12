@@ -29,8 +29,10 @@ namespace NeuralNetwork1
             int x = (int)((double)200 / pictureBox1.Width * e.X);
             int y = (int)((double)200 / pictureBox1.Height * e.Y);
 
+            generator.ClearImage();
             generator.start_point = new Point(x, y);
-            generator.get_random_figure();
+            
+            generator.create_triangle();
             generator.GenInputOutput(out double[] input, out int type);
             
             label1.Text = net.predict(input).ToString();
@@ -46,7 +48,7 @@ namespace NeuralNetwork1
             List<double[]> data = new List<double[]>(training_size);
             List<int> res = new List<int>(training_size);
             var trainingSetGen = new GenerateImage();
-            for (int i = 0; i < training_size; i++)
+            for (int i = 0; i < 2; i++)
             {
                 trainingSetGen.generate_figure(i % trainingSetGen.figure_count);
                 trainingSetGen.GenInputOutput(out double[] inp, out int type);

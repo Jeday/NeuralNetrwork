@@ -20,7 +20,7 @@ namespace NeuralNetwork1
 
 
         
-        private void ClearImage()
+        public void ClearImage()
         {
             for (int i = 0; i < 200; ++i)
                 for (int j = 0; j < 200; ++j)
@@ -147,9 +147,21 @@ namespace NeuralNetwork1
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
-            int right_pointX = rand.Next(start_point.X, 200 - margin);
-            int left_pointX = rand.Next(margin, start_point.X);
-            int up_pointY = rand.Next(margin, 200 - margin);
+            int right_pointX = rand.Next(start_point.X + margin, 200 - margin);
+            int left_pointX = rand.Next(margin, start_point.X - margin);
+            int updown = rand.Next(0, 1);
+            int dist = rand.Next(margin, updown == 1 ? 200  - start_point.Y : start_point.Y - margin );
+            int up_pointY;
+            if (updown == 0)
+            {
+                up_pointY = start_point.Y - dist;
+
+            }
+            else
+            {
+                up_pointY = start_point.Y + dist;
+            }
+            
 
             bresenham(left_pointX, start_point.Y, right_pointX, start_point.Y);
             bresenham(left_pointX, start_point.Y, start_point.X, up_pointY);
