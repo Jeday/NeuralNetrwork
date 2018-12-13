@@ -62,7 +62,7 @@ namespace NeuralNetwork1
             var norm = input.Max();
             for (int i = 0; i < 400; i++)
             {
-                input[i] /= norm;
+                input[i] /= 200.0;
             }
 
 

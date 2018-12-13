@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace NeuralNetwork1
 {
@@ -17,7 +19,7 @@ namespace NeuralNetwork1
             public int cnt;
             public double[] weights;
             public Node[] nextLayer;
-
+            
 
             public Node(int c)
             {
@@ -76,8 +78,15 @@ namespace NeuralNetwork1
         public int HiddenNeuronsCount;
         public int OutputCount;
         public int HiddenLayersCount;
-        public double LearningSpeed = 0.5;
+        public double LearningSpeed = 1;
         private int AllNeuronCount;
+        public double EPS = 0.01;
+
+
+        public int current_class = -1;
+        public double[] error_vector;
+
+
 
         private Node[] Sensors;
         private Node[][] Layers;
@@ -216,6 +225,46 @@ namespace NeuralNetwork1
         }
 
 
+        public void  WorkResults(int type)
+        {
+            double max = Outputs[0].output;
+            int res_type = 0;
+            for (int i = 0; i < Outputs.Length; i++)
+            {
+                if (Outputs[i].output > max)
+                {
+                    max = Outputs[i].output;
+                    res_type = i;
+
+                }
+            }
+            double desired = Outputs[type].output;
+            double diff = max - desired;
+            if (Math.Abs(diff) < EPS  && res_type !=type)
+            {
+                error_vector = Outputs.Select(n => 0.0).ToArray();
+                error_vector[type] =  EPS;
+                current_class = -1;
+
+                
+            }
+            else if (desired == max)
+            {
+                error_vector = Outputs.Select(n => 0.0).ToArray();
+                current_class = type;
+
+            }
+            else{
+                error_vector = Outputs.Select(n => n.output > desired ? desired-n.output : 0).ToArray();
+                error_vector[type] = diff;
+                current_class = res_type;
+
+            }
+
+
+        }
+
+
         public int predict(double[] input)
         {
             Run(input);
@@ -234,45 +283,30 @@ namespace NeuralNetwork1
             return ind;
         }
 
-        public void Train(double[] input, int type)
+        public bool Train(double[] input, int iter_count, int type)
         {
 
-             Run(input);
-             double ValueOfDesired = Outputs[type].output;
-             double MaxGotten = Outputs.Max(n => n.output);
-             if (ValueOfDesired >= MaxGotten)
-                return;
-            double diff = (MaxGotten - ValueOfDesired);
-            double[] error_vector = new double[OutputCount];
-            for (int i = 0; i < OutputCount; i++)
-            {
-                Node n = Outputs[i];
-                if (i == type)
-                    error_vector[i] = diff;
-                else if (n.output > ValueOfDesired)
-                    error_vector[i] = -diff;
-                else
-                    error_vector[i] = 0;
-            }
-
+            Run(input);
+            WorkResults(type);
+            var ev = error_vector.ToArray();
             int iter = 0;
-            while (MaxGotten !=ValueOfDesired)
+            while (type != current_class)
             {
                 iter++;
-                if (iter > 8)
+                if (iter > iter_count)
                     break;
-                for (int i = 0; i < OutputCount; i++)
+                for (int i = 0; i < Outputs.Length; i++)
                 {
-                    Outputs[i].error = error_vector[i];
+                    Outputs[i].error = ev[i];
                 }
                 CalculateError();
                 ReWeight();
                 Run(input);
-                ValueOfDesired = Outputs[type].output;
-                MaxGotten = Outputs.Max(n => n.output);
-
+                WorkResults(type);
             }
-            
+            if (type == current_class)
+                return true;
+            return false;
             
 
         }
@@ -314,6 +348,12 @@ namespace NeuralNetwork1
             }
         }
 
+        public double[] getOutput()
+        {
+            return Outputs.Select(n => n.output).ToArray();
+
+
+        }
 
         public bool TrainOnDataSet(List<double[]> data, List<int>  outputs,int epochs_count, double acceptable_erorr)
         {
