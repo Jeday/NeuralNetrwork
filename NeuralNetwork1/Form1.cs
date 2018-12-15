@@ -36,12 +36,13 @@ namespace NeuralNetwork1
             generator.generate_figure(curr_figure);
             generator.GenInputOutput(out double[] input, out int type);
             Enabled = false;
+            int pred_res= -1;
             if (mode == 0)
-                net.Train(input, 40, type);
+                net.Train(input, 40, type,0.5);
             else if (mode == 1)
-                net.predict(input);
+                pred_res = net.predict(input);
             Enabled = true;
-            label1.Text = net.current_class.ToString();
+            label1.Text = pred_res.ToString();
             label8.Text = String.Join("\n", net.getOutput().Select(d => d.ToString()));
             pictureBox1.Image = generator.genBitmap();
             pictureBox1.Invalidate();
@@ -57,7 +58,7 @@ namespace NeuralNetwork1
             var trainingSetGen = new GenerateImage();
             for (int i = 0; i < 2; i++)
             {
-                trainingSetGen.generate_figure(i % trainingSetGen.figure_count);
+                trainingSetGen.generate_figure(i % trainingSetGen.figure_count,true);
                 trainingSetGen.GenInputOutput(out double[] inp, out int type);
                 data.Add(inp);
                 res.Add(type);

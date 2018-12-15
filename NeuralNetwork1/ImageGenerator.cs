@@ -11,7 +11,7 @@ namespace NeuralNetwork1
     {
         public Point start_point;
         public bool[,] img;
-        private int margin = 10;
+        private int margin = 20;
         private Random rand;
         public int current_figure;
         public int figure_count = 4;
@@ -147,21 +147,23 @@ namespace NeuralNetwork1
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
-            int right_pointX = rand.Next(start_point.X + margin, 200 - margin);
-            int left_pointX = rand.Next(margin, start_point.X - margin);
-            int updown = rand.Next(0, 1);
-            int dist = rand.Next(margin, updown == 1 ? 200  - start_point.Y : start_point.Y - margin );
-            int up_pointY;
-            if (updown == 0)
-            {
-                up_pointY = start_point.Y - dist;
+            int minhor = Math.Min(200 - start_point.X - margin, start_point.X - margin);
+            int minvert = Math.Min(minhor,200 - start_point.Y - margin);
 
-            }
-            else
-            {
-                up_pointY = start_point.Y + dist;
-            }
-            
+            int dist = margin + rand.Next(0,minvert);
+            int right_pointX = start_point.X - dist;
+            int left_pointX = start_point.X + dist;
+            int up_pointY = start_point.Y + dist;
+
+
+            //int right_pointX = rand.Next(start_point.X + margin, 200 - margin);
+            //int left_pointX = rand.Next(margin, start_point.X - margin);
+            //int dist = rand.Next(margin,  200  - start_point.Y - margin);
+            //int up_pointY;
+
+            //up_pointY = start_point.Y + dist;
+
+
 
             bresenham(left_pointX, start_point.Y, right_pointX, start_point.Y);
             bresenham(left_pointX, start_point.Y, start_point.X, up_pointY);
@@ -174,9 +176,15 @@ namespace NeuralNetwork1
             if (start_point.X > (200 - margin) || start_point.Y > (200 - margin) || start_point.X < margin || start_point.Y < margin)
                 return;
 
-            int right_pointX = rand.Next(start_point.X, 200 - margin);
-            int left_pointX = rand.Next(margin, start_point.X);
-            int up_pointY = rand.Next(margin, 200 - margin);
+            int minhor = Math.Min(200 - start_point.X - 2 * margin, start_point.X - 2 * margin);
+            int minvert = Math.Min(minhor, 200 - start_point.Y - 2 * margin);
+            if (minvert < 0)
+                return;
+            int dist = margin + rand.Next(0, minvert);
+
+            int right_pointX = start_point.X + dist;
+            int left_pointX = start_point.X - dist;
+            int up_pointY = start_point.Y + dist;
 
             bresenham(left_pointX, start_point.Y, right_pointX, start_point.Y);
             bresenham(left_pointX, start_point.Y, left_pointX, up_pointY);
@@ -224,10 +232,11 @@ namespace NeuralNetwork1
         }
 
 
-        public void generate_figure(int type)
+        public void generate_figure(int type, bool random = false )
         {
 
-            start_point = new Point(rand.Next(100 - center_margin, 100 + center_margin), rand.Next(100 - center_margin, 100 + center_margin));
+            if(random)
+                start_point = new Point(rand.Next(100 - center_margin, 100 + center_margin), rand.Next(100 - center_margin, 100 + center_margin));
             ClearImage();
             switch (type)
             {
