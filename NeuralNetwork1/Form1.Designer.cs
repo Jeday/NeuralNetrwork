@@ -54,6 +54,7 @@
             this.radioButton6 = new System.Windows.Forms.RadioButton();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
@@ -151,6 +152,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.StatusLabel);
             this.groupBox1.Controls.Add(label7);
             this.groupBox1.Controls.Add(this.button1);
@@ -183,7 +185,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(105, 189);
+            this.button1.Location = new System.Drawing.Point(54, 189);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 11;
@@ -257,7 +259,7 @@
             0,
             0});
             this.HiddenMagCounter.Minimum = new decimal(new int[] {
-            3,
+            1,
             0,
             0,
             0});
@@ -405,6 +407,16 @@
             this.label9.TabIndex = 7;
             this.label9.Text = "0:\r\n1:\r\n2:\r\n3:";
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(186, 189);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 14;
+            this.button2.Text = "Simple Train";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -459,6 +471,7 @@
         private System.Windows.Forms.RadioButton radioButton6;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button button2;
     }
 }
 

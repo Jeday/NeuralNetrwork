@@ -25,6 +25,33 @@ namespace NeuralNetwork1
 
         }
 
+        private void set_result(int r)
+        {
+            switch (r)
+            {
+                default:
+                case -1:
+                    label1.Text ="UNKNOWNN";
+                    break;
+                case 0:
+                    label1.Text = "Trinagle";
+                    break;
+
+                case 1:
+                    label1.Text = "Rectangle";
+                    break;
+
+                case 2:
+                    label1.Text = "Circle";
+                    break;
+
+                case 3:
+                    label1.Text = "Sin";
+                    break;
+            }
+
+        }
+
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
             int x = (int)((double)200 / pictureBox1.Width * e.X);
@@ -38,11 +65,13 @@ namespace NeuralNetwork1
             Enabled = false;
             int pred_res= -1;
             if (mode == 0)
-                net.Train(input, 40, type,0.5);
+                pred_res = net.Train(input, 40, type,0.5);
             else if (mode == 1)
                 pred_res = net.predict(input);
             Enabled = true;
-            label1.Text = pred_res.ToString();
+            
+            set_result(pred_res);
+
             label8.Text = String.Join("\n", net.getOutput().Select(d => d.ToString()));
             pictureBox1.Image = generator.genBitmap();
             pictureBox1.Invalidate();
@@ -56,28 +85,44 @@ namespace NeuralNetwork1
             List<double[]> data = new List<double[]>(training_size);
             List<int> res = new List<int>(training_size);
             var trainingSetGen = new GenerateImage();
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < training_size; i++)
             {
-                trainingSetGen.generate_figure(i % trainingSetGen.figure_count,true);
+                trainingSetGen.generate_figure(i % trainingSetGen.figure_count, true);
                 trainingSetGen.GenInputOutput(out double[] inp, out int type);
                 data.Add(inp);
                 res.Add(type);
 
             }
-            bool f = net.TrainOnDataSet(data, res,epoches, acceptable_error);
-            if (f)
-            {
-                StatusLabel.Text = "Network is trained succesfully";
-                StatusLabel.ForeColor = Color.Green;
+            double f = net.TrainOnDataSet(data, res,epoches,acceptable_error);
+            StatusLabel.Text = "Accuracy: "+f.ToString();
+            StatusLabel.ForeColor = Color.Green;
 
-            }
-            else
-            {
-                StatusLabel.Text = "Training failed";
-                StatusLabel.ForeColor = Color.Red;
-
-            }
+          
         }
+
+        private void train_networkSIMPLE(int hidden_layers, double hmag, int training_size, int epoches, double acceptable_error)
+        {
+            StatusLabel.Text = "Training in progres...";
+            StatusLabel.ForeColor = Color.Black;
+            net = new NeuralNetwork(400, generator.figure_count, hidden_layers, hmag);
+            List<double[]> data = new List<double[]>(training_size);
+            List<int> res = new List<int>(training_size);
+            var trainingSetGen = new GenerateImage();
+            for (int i = 0; i < training_size; i++)
+            {
+                trainingSetGen.generate_figure(i % trainingSetGen.figure_count, true);
+                trainingSetGen.GenInputOutput(out double[] inp, out int type);
+                data.Add(inp);
+                res.Add(type);
+
+            }
+            double f = net.TrainOnDataSetSimple(data, res);
+            StatusLabel.Text = "Accuracy: " + f.ToString();
+            StatusLabel.ForeColor = Color.Green;
+
+
+        }
+
 
         private void groupBox1_Enter(object sender, EventArgs e)
         {
@@ -145,6 +190,13 @@ namespace NeuralNetwork1
             else if (radioButton5.Checked)
                 mode = 1; 
                 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            train_networkSIMPLE((int)HidLayerCounter.Value, (double)HiddenMagCounter.Value, (int)TrainingSizeCounter.Value, (int)EpochesCounter.Value, (100 - AccuracyCounter.Value) / 100.0);
+            this.Enabled = true;
         }
     }
 

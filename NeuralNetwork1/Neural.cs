@@ -35,7 +35,9 @@ namespace NeuralNetwork1
 
             public void Activate()
             {
-                output = ActivationFunction(charge, bias);                      
+                output = ActivationFunction(charge, bias);
+                if (Double.IsNaN(output))
+                    output = 0;
                 for (int i = 0; i < cnt; i++)
                 {
                     nextLayer[i].charge += output * weights[i];
@@ -46,6 +48,8 @@ namespace NeuralNetwork1
             public void Fire(double inp)
             {
                 output = inp;
+                if (Double.IsNaN(output))
+                    output = 0;
                 for (int i = 0; i < cnt; i++)
                 {
                     nextLayer[i].charge += output * weights[i];
@@ -56,7 +60,7 @@ namespace NeuralNetwork1
 
             public static  double ActivationFunction(double inp,double bias)
             {
-                return 1 / (1 + Math.Exp(-inp + bias));
+                return 1 / (1 + Math.Exp(-inp - bias));
 
             }
 
@@ -78,8 +82,8 @@ namespace NeuralNetwork1
 
 
 
-        private static double INIT_MAX_WEIGHT = 0.01;
-        private static double INIT_MIN_WEIGHT = -0.01;
+        private static double INIT_MAX_WEIGHT = 0.1;
+        private static double INIT_MIN_WEIGHT = -0.1;
         private int LAST_HIDDEN_IND;
         private int COUNT_LAYERS;
         public int SencorCount;
@@ -87,10 +91,10 @@ namespace NeuralNetwork1
         public int HiddenNeuronsCount;
         public int OutputCount;
         public int HiddenLayersCount;
-        public double LearningSpeed = 0.001;
+        public double LearningSpeed = 0.1;
         public double BiasSpeed = 0.001;
         private int AllNeuronCount;
-        public double EPS = 0.1;
+        public double EPS = 0.01;
         public double Moment = 0.01;
 
 
@@ -135,7 +139,7 @@ namespace NeuralNetwork1
             // init sensor nodes
             for (int i = 0; i < SencorCount; i++)
             {
-                Sensors[i] = new Node((int)HiddenLayerMagnifyer * 3);
+                Sensors[i] = new Node((int)HiddenLayerMagnifyer*2);
 
 
             }
@@ -171,7 +175,7 @@ namespace NeuralNetwork1
                 HashSet<int> nerv = new HashSet<int>();
                 while (nerv.Count < s.cnt)
                 {
-                    int n =rand.Next(0, HiddenNeuronsCount - 1);
+                    int n =rand.Next(0, HiddenNeuronsCount);
                     if (!nerv.Contains(n))
                         nerv.Add(n);
                 }
@@ -238,8 +242,38 @@ namespace NeuralNetwork1
 
         public double  WorkResults(int type)
         {
-            error_vector =  Outputs.Select((t, i) => i == type ? 1.0 : 0.0).Select((e, i) => e - Outputs[i].output).ToArray();
-            return  Math.Sqrt(error_vector.Sum(e => e * e)/error_vector.Length);
+            /* double dest = Outputs[type].output;
+             double diff = Outputs.Max(n => n.output) - dest;
+             double max_wrong = Outputs.Where((n, i) => i != type).Max(n => n.output);
+             if(Math.Abs(dest - max_wrong)<EPS)
+                 error_vector = Outputs.Select((t, i) => i == type ? EPS : 0.0).ToArray();
+             else
+                 error_vector = Outputs.Select((t, i) => i == type ? diff  :  t.output>dest ? dest - t.output: 0.0).ToArray();
+
+             //error_vector = Outputs.Select((t, i) => i == type ? 1 - t.output  : 0 - t.output).ToArray();
+
+
+             return  Math.Sqrt(error_vector.Sum(e => e * e)/error_vector.Length);*/
+
+            double necessary_value = Outputs[type].output;
+            double received_value = Outputs.Max(n => n.output);
+            if (necessary_value >= received_value)
+                return 0;
+
+            double difference = (received_value - necessary_value);
+            error_vector = new double[OutputCount];
+
+            for (int i = 0; i < OutputCount; i++)
+            {
+                Node cur = Outputs[i];
+                if (i == type)
+                    error_vector[i] = difference;
+                else if (cur.output > necessary_value)
+                    error_vector[i] = necessary_value - cur.output;
+                else
+                    error_vector[i] = 0;
+            }
+            return difference;
 
         }
 
@@ -262,26 +296,16 @@ namespace NeuralNetwork1
             return ind;
         }
 
-        public bool Train(double[] input, int iter_count, int type,double acceptable_error)
+        public int Train(double[] input, int iter_count, int type,double acceptable_error)
         {
 
-            Run(input);
+            var res =predict(input);
+            if (res == type)
+                return res;
             double error = WorkResults(type);
-            int iter = 0;
-            while (error > acceptable_error)
-            {
-                iter++;
-                if (iter > iter_count)
-                    break;
-                CalculateError();
-                ReWeight();
-                Run(input);
-                error = WorkResults(type);
-            }
-            if (type == current_class)
-                return true;
-            return false;
-            
+            CalculateError();
+            ReWeight();
+            return res;
 
         }
 
@@ -291,7 +315,7 @@ namespace NeuralNetwork1
         {
             for (int i = 0; i < OutputCount; i++)
             {
-                Outputs[i].error = Outputs[i].Derivative() * error_vector[i];
+                Outputs[i].error =  error_vector[i];
             }
             for (int i = LAST_HIDDEN_IND; i >= 0; i--)
             {
@@ -303,7 +327,7 @@ namespace NeuralNetwork1
                     {
                         n.error += n.nextLayer[k].error * n.weights[k];
                     }
-                    n.error *= n.Derivative();
+                    
 
                 }
             }
@@ -312,7 +336,9 @@ namespace NeuralNetwork1
         // reavaluate weights between nodes
         private void ReWeight() {
 
-            for (int i = 0; i < LAST_HIDDEN_IND; i++)
+            //foreach(var n in Outputs)
+                //n.bias += BiasSpeed * n.error;
+            for (int i = 0; i < Layers.Length; i++)
             {
                 for (int j = 0; j < Layers[i].Length; j++)
                 {
@@ -320,12 +346,10 @@ namespace NeuralNetwork1
                     for (int k = 0; k < n.cnt; k++)
                     {
                         Node next = n.nextLayer[k];
-                        double GradAB = next.error * n.output;
-                        n.DeltaW[k] = LearningSpeed * GradAB + Moment * n.DeltaW[k]; 
-                        n.weights[k] += n.DeltaW[k];
-                        
+                        n.weights[k] += LearningSpeed * next.error* n.output * (next.output * (1 - next.output));
+
                     }
-                    n.bias = BiasSpeed * n.error;
+                    n.bias += BiasSpeed * n.error;
                 }
             }
         }
@@ -337,7 +361,7 @@ namespace NeuralNetwork1
 
         }
 
-        public bool TrainOnDataSet(List<double[]> data, List<int>  outputs,int epochs_count, double acceptable_erorr)
+        public double TrainOnDataSet(List<double[]> data, List<int>  outputs,int epochs_count, double acceptable_erorr)
         {
             // succes
             List<bool> succeces = new List<bool>(data.Count);
@@ -356,7 +380,7 @@ namespace NeuralNetwork1
             int ind = 0;
             while(epochs_count > 0 && 1 - succeces_percent > acceptable_erorr)
             {
-                // last ind marks end of epoch?
+                // last ind marks end of epoch
                 if (ind == data.Count - 1)
                     epochs_count--;
                 // get training data
@@ -379,18 +403,9 @@ namespace NeuralNetwork1
                 }
                 //network is  wrong, backpropogation is needed
                 succeces[ind] = false;
-                double diff = (MaxGotten - ValueOfDesired);
-                error_vector = Outputs.Select((n, i) => i == ind ? 1 - n.output : 0 - n.output).ToArray();
-                /*for (int i = 0; i < OutputCount; i++)
-                {
-                    Node n = Outputs[i];
-                    if (i == type)
-                        error_vector[i] = diff;
-                    else if (n.output > ValueOfDesired)
-                        error_vector[i] = ValueOfDesired - n.output;
-                    else
-                        error_vector[i] = 0;
-                }*/
+                UpdateSuccesPercent();
+                WorkResults(outputs[ind]);
+                
                 
 
                 // bp error and reweight
@@ -404,14 +419,58 @@ namespace NeuralNetwork1
             }
 
             // networks was succesfuly trained on training set
-            if (1 - succeces_percent <= acceptable_erorr)
-                return true;
-            // we runned out of epoches
-            return false;
+            return succeces_percent;
 
         }
 
+        public double TrainOnDataSetSimple(List<double[]> data, List<int> outputs)
+        {
+            for (int i = 0; i < data.Count; i++)
+            {
+                Run(data[i]);
+                int res = 0;
+                double max = Outputs[0].output;
+                for (int j = 1; j < OutputCount; j++)
+                {
+                    if (Outputs[j].output > max)
+                    {
+                        res = j;
+                        max = Outputs[j].output;
+                    }
+                }
+                if (res == outputs[i])
+                    continue;
+                WorkResults(outputs[i]);
+                CalculateError();
+                ReWeight();
 
+
+            }
+
+            int test_count = data.Count / 10;
+            if (test_count == 0)
+                return 0;
+            int right_count = 0;
+            for (int i = data.Count - test_count; i < data.Count && i>=0 ; i++)
+            {
+                Run(data[i]);
+                int res = 0;
+                double max = Outputs[0].output;
+                for (int j = 1; j < OutputCount; j++)
+                {
+                    if (Outputs[j].output > max)
+                    {
+                        res = j;
+                        max = Outputs[j].output;
+                    }
+                }
+                if (res == outputs[i])
+                    right_count++;
+            }
+            
+            return (double)right_count / test_count;
+
+        }
         
     }
 }
