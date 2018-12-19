@@ -82,8 +82,8 @@ namespace NeuralNetwork1
 
 
 
-        private static double INIT_MAX_WEIGHT = 0.1;
-        private static double INIT_MIN_WEIGHT = -0.1;
+        private static double INIT_MAX_WEIGHT = 1;
+        private static double INIT_MIN_WEIGHT = -1;
         private int LAST_HIDDEN_IND;
         private int COUNT_LAYERS;
         public int SencorCount;
@@ -95,7 +95,7 @@ namespace NeuralNetwork1
         public double BiasSpeed = 0.001;
         private int AllNeuronCount;
         public double EPS = 0.01;
-        public double Moment = 0.01;
+        public double Moment = 0.3;
 
 
         public int current_class = -1;
@@ -315,7 +315,7 @@ namespace NeuralNetwork1
         {
             for (int i = 0; i < OutputCount; i++)
             {
-                Outputs[i].error =  error_vector[i];
+                Outputs[i].error = Outputs[i].Derivative() * error_vector[i];
             }
             for (int i = LAST_HIDDEN_IND; i >= 0; i--)
             {
@@ -325,9 +325,9 @@ namespace NeuralNetwork1
                     n.error = 0;
                     for (int k = 0; k < n.cnt; k++)
                     {
-                        n.error += n.nextLayer[k].error * n.weights[k];
+                        n.error += n.nextLayer[k].error;
                     }
-                    
+                    n.error *= n.Derivative() * n.output;
 
                 }
             }
@@ -336,8 +336,8 @@ namespace NeuralNetwork1
         // reavaluate weights between nodes
         private void ReWeight() {
 
-            //foreach(var n in Outputs)
-                //n.bias += BiasSpeed * n.error;
+            foreach(var n in Outputs)
+                n.bias += BiasSpeed * n.error;
             for (int i = 0; i < Layers.Length; i++)
             {
                 for (int j = 0; j < Layers[i].Length; j++)
@@ -346,8 +346,9 @@ namespace NeuralNetwork1
                     for (int k = 0; k < n.cnt; k++)
                     {
                         Node next = n.nextLayer[k];
-                        n.weights[k] += LearningSpeed * next.error* n.output * (next.output * (1 - next.output));
-
+                        double GradAB = next.error * n.output;
+                        n.DeltaW[k] = LearningSpeed * GradAB + Moment * n.DeltaW[k];
+                        n.weights[k] += n.DeltaW[k];
                     }
                     n.bias += BiasSpeed * n.error;
                 }
